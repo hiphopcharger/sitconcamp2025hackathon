@@ -58,9 +58,9 @@
 		}
 
 		.home_page_main_box1_p {
-			font-size: 20px;
+			font-size: 15px;
 			color: #5e5f61;
-
+			text-align: left
 		}
 
 		.home_page_main_box1_country {
@@ -83,7 +83,46 @@
 			gap: 10px;
 		}
 
+		.people_input_function {
+			display: flex;
+			align-items: center;
+			gap: 10px;
+			font-size: 20px;
+		}
+
+		.people_input {
+			width: 100px;
+			height: 30px;
+			text-align: center;
+		}
+
+		.people_input_button {
+			height: 35px;
+			width: 40px;
+		}
+
+		.money_input {
+			display: flex;
+			align-items: center;
+			margin-left: 50px;
+		}
+
+		.create {
+			width: 150px;
+			height: 50px;
+			justify-content: center;
+			background-color: #ff8636;
+			color: white;
+			font-size: 20px;
+			padding: 0px;
+			border-radius: 5px;
+			cursor: pointer;
+			margin-top: 0px;
+			border-width: 0px;
+		}
+
 		label {
+			display: block;
 			border: 1px solid #ccc;
 			padding: 8px;
 			border-radius: 6px;
@@ -113,15 +152,15 @@
 		<div class="home_page_main_box">
 			<h1 class="home_page_main_box_title">旅遊地點</h1>
 			<div style="padding-left: 400px; padding-right: 0px;">
-				<form style="display: column" action="/country-area.aspx" method="POST">
+				<form style="display: column" action="/country-area" method="POST">
 					<div class="area_form">
-						<h1 style="text-align: left; color: #5e5f61; font-size: 15px">新竹市</h1>
+						<h1 class="home_page_main_box1_p">新竹市</h1>
 						<label><input type="checkbox" name="area" value="東區"> 東區</label>
 						<label><input type="checkbox" name="area" value="北區"> 北區</label>
 						<label><input type="checkbox" name="area" value="香山區"> 香山區</label>
 					</div>
 					<div class="area_form">
-						<h1 style="text-align: left; color: #5e5f61; font-size: 15px">新竹縣</h1>
+						<h1 class="home_page_main_box1_p">新竹縣</h1>
 						<label><input type="checkbox" name="area" value="竹北市"> 竹北市</label>
 						<label><input type="checkbox" name="area" value="竹東鎮"> 竹東鎮</label>
 						<label><input type="checkbox" name="area" value="新埔鎮"> 新埔鎮</label>
@@ -153,14 +192,62 @@
 				});
 			</script>
 			<label class="home_page_main_box2_text" style="margin: 20px;" for="mySlider">室內</label>
-			<form style="margin-left: 50px;display: column" action="/like-choose.aspx" method="POST">
+			<form style="margin-left: 50px;display: column" action="/like-choose" method="POST">
 				<div class="area_form">
-					<h1 style="margin: left 20px;text-align: left; color: #5e5f61; font-size: 15px">旅遊類型</h1>
+					<h1 class="home_page_main_box1_p" style="margin-right: 33px;">旅遊類型</h1>
 					<label><input type="checkbox" name="like" value="食物"> 食物</label>
 					<label><input type="checkbox" name="like" value="玩樂"> 玩樂</label>
 					<label><input type="checkbox" name="like" value="風景"> 風景</label>
 				</div>
+
 			</form>
+		</div>
+		<div class="home_page_main_box" style="gap: 20px;">
+			<h1 class="home_page_main_box_title">旅遊日期</h1>
+			<label style="margin-left: 40px;">
+				開始日期：
+				<input type="date" id="startDate" name="startDate">
+			</label>
+			<label style="margin-left: 40px;">
+				結束日期：
+				<input type="date" id="endDate" name="endDate">
+			</label>
+			<script>
+				const startInput = document.getElementById('startDate');
+				const endInput = document.getElementById('endDate');
+				startInput.addEventListener('change', () => {     // 日期改變 → 限制結束日期
+					endInput.min = startInput.value;
+				});
+
+				endInput.addEventListener('change', () => {     // 日期改變 → 限制開始日期
+					startInput.max = endInput.value;
+				});
+			</script>
+		</div>
+		<div class="home_page_main_box">
+			<h1 class="home_page_main_box_title">旅遊預算</h1>
+			<h1 class="home_page_main_box1_p" style="display: grid; place-items: center; margin-left:100px">旅遊人數</h1>
+			<div class="people_input_function" style="margin-left: 50px;">
+				<button class="people_input_button" onclick="changeAmount(-1)">−</button>
+				<input class="people_input" id="amount" value="0" step="100" min="0" readonly>
+				<button class="people_input_button" onclick="changeAmount(1)">＋</button>
+			</div>
+			<script>
+				function changeAmount(change) {
+					const input = document.getElementById('amount');
+					let current = parseInt(input.value) || 0;
+					current += change;
+					if (current < 0) current = 0;       //錢錢不<0
+					input.value = current;
+				}
+			</script>
+			<div class="money_input" style="margin: left 50px;">
+				<h1 class="home_page_main_box1_p" style="margin-right: 50px; margin-left: 100px">金額</h1>
+				<input type="number" placeholder="輸入金額" style="flex: 1; padding: 0px; height:30px" />
+			</div>
+		</div>
+		<div style="width: 100% ;place-items: center;display: grid;" >
+			<button class="create" type="create">建立行程</button>
 		</div>
 	</div>
 </body>
