@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+	<meta charset="utf-8" />
+	<title>新竹旅遊規劃</title>
+	<style>
+		.home_page {
+			background-color: #d5e0fa;
+		}
+
+		.home_page_top_title {
+			padding: 10px;
+			margin-top: 10px;
+			margin-bottom: 0px;
+			margin-left: 10px;
+			margin-right: 10px;
+			border-top-left-radius: 10px;
+			border-top-right-radius: 10px;
+			background-color: #6f9dff;
+			color: #ffffff;
+			font-size: 40px;
+			font-weight: bold;
+		}
+
+		.home_page_main {
+			padding: 10px;
+			margin-top: 0px;
+			margin-bottom: 10px;
+			margin-left: 10px;
+			margin-right: 10px;
+			border-bottom-left-radius: 10px;
+			border-bottom-right-radius: 10px;
+			background-color: #ffffff;
+		}
+
+		.home_page_main_title {
+			font-size: 30px;
+			font-weight: bold;
+			color: #a64def;
+			text-align: center;
+		}
+
+		.home_page_main_box {
+			display: flex;
+			margin: 10px;
+			padding: 10px;
+			background-color: #f1e1ff;
+			border-radius: 10px;
+		}
+
+		.home_page_main_box_title {
+			font-size: 30px;
+			font-weight: bold;
+			padding: 10px;
+			margin-top: 0px;
+			color: #a64def;
+		}
+
+		.home_page_main_box1_p {
+			font-size: 20px;
+			color: #5e5f61;
+
+		}
+
+		.home_page_main_box1_country {
+			width: 20px;
+		}
+
+		.home_page_main_box2_text {
+			width: 50px;
+			height: 30px;
+			display: grid;
+			place-items: center;
+		}
+
+		.area_form {
+			max-width: 1000px;
+			grid-template-columns: repeat(8, 1fr);
+			/*5欄*/
+			margin: 20px auto;
+			display: grid;
+			gap: 10px;
+		}
+
+		label {
+			border: 1px solid #ccc;
+			padding: 8px;
+			border-radius: 6px;
+			cursor: pointer;
+			display: flex;
+			align-items: center;
+			gap: 6px;
+			user-select: none;
+			background: #f9f9f9;
+		}
+
+		label:hover {
+			background: #e0f7ff;
+		}
+
+		input[type="checkbox"] {
+			cursor: pointer;
+			accent-color: #a64def;
+		}
+	</style>
+</head>
+
+<body class="home_page">
+	<h1 class="home_page_top_title">新竹旅遊規劃</h1>
+	<div class="home_page_main">
+		<h1 class="home_page_main_title">建立專屬旅遊行程</h1>
+		<div class="home_page_main_box">
+			<h1 class="home_page_main_box_title">旅遊地點</h1>
+			<div style="padding-left: 400px; padding-right: 0px;">
+				<form style="display: column" action="/country-area.aspx" method="POST">
+					<div class="area_form">
+						<h1 style="text-align: left; color: #5e5f61; font-size: 15px">新竹市</h1>
+						<label><input type="checkbox" name="area" value="東區"> 東區</label>
+						<label><input type="checkbox" name="area" value="北區"> 北區</label>
+						<label><input type="checkbox" name="area" value="香山區"> 香山區</label>
+					</div>
+					<div class="area_form">
+						<h1 style="text-align: left; color: #5e5f61; font-size: 15px">新竹縣</h1>
+						<label><input type="checkbox" name="area" value="竹北市"> 竹北市</label>
+						<label><input type="checkbox" name="area" value="竹東鎮"> 竹東鎮</label>
+						<label><input type="checkbox" name="area" value="新埔鎮"> 新埔鎮</label>
+						<label><input type="checkbox" name="area" value="關西鎮"> 關西鎮</label>
+						<label><input type="checkbox" name="area" value="新豐鄉"> 新豐鄉</label>
+						<label><input type="checkbox" name="area" value="峨眉鄉"> 峨眉鄉</label>
+						<label><input type="checkbox" name="area" value="寶山鄉"> 寶山鄉</label>
+						<br> <!--嘻嘻嘻-->
+						<label><input type="checkbox" name="area" value="五峰鄉"> 五峰鄉</label>
+						<label><input type="checkbox" name="area" value="橫山鄉"> 橫山鄉</label>
+						<label><input type="checkbox" name="area" value="北埔鄉"> 北埔鄉</label>
+						<label><input type="checkbox" name="area" value="尖石鄉"> 尖石鄉</label>
+						<label><input type="checkbox" name="area" value="芎林鄉"> 芎林鄉</label>
+						<label><input type="checkbox" name="area" value="湖口鄉"> 湖口鄉</label>
+					</div>
+				</form>
+			</div>
+		</div>
+		<div class="home_page_main_box">
+			<h1 class="home_page_main_box_title">旅遊偏好</h1>
+			<label class="home_page_main_box2_text" style="margin: 20px;" for="mySlider">室外</label>
+			<input type="range" id="mySlider" name="brightness" min="0" max="100" value="0" step="50">
+			<script>
+				const slider = document.getElementById("mySlider");
+				const value = document.getElementById("sliderValue");
+
+				slider.addEventListener("input", () => {
+					value.textContent = slider.value;
+				});
+			</script>
+			<label class="home_page_main_box2_text" style="margin: 20px;" for="mySlider">室內</label>
+			<form style="margin-left: 50px;display: column" action="/like-choose.aspx" method="POST">
+				<div class="area_form">
+					<h1 style="margin: left 20px;text-align: left; color: #5e5f61; font-size: 15px">旅遊類型</h1>
+					<label><input type="checkbox" name="like" value="食物"> 食物</label>
+					<label><input type="checkbox" name="like" value="玩樂"> 玩樂</label>
+					<label><input type="checkbox" name="like" value="風景"> 風景</label>
+				</div>
+			</form>
+		</div>
+	</div>
+</body>
+
+</html>
