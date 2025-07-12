@@ -8,7 +8,7 @@
     "description": "融合客家文化與古早味小吃的熱門觀光老街。",
     "price": 0,
     "indoor": false,
-    "close_days": ["一", "二", "三", "四", "五"]
+    "close_days": []
   },
   {
     "id": 2,
@@ -19,7 +19,7 @@
     "description": "懷舊老車站，打卡熱點，象徵愛情的浪漫車站。",
     "price": 0,
     "indoor": false,
-    "close_days": []
+    "close_days": ["二"]
   },
   {
     "id": 3,
@@ -28,7 +28,7 @@
     "city": "新竹縣",
     "township": "關西鎮",
     "description": "結合遊樂設施與野生動物園的大型樂園。",
-    "price": 999,
+    "price": 1400,
     "indoor": false,
     "close_days": []
   },
@@ -41,7 +41,7 @@
     "description": "保留閩南與客家古蹟及擂茶文化的懷舊街區。",
     "price": 0,
     "indoor": false,
-    "close_days": ["一", "二", "三", "四", "五"]
+    "close_days": []
   },
   {
     "id": 5,
@@ -59,7 +59,7 @@
     "name": "小叮噹科學主題樂園",
     "type": "主題樂園",
     "city": "新竹縣",
-    "township": "湖口鄉",
+    "township": "新豐鄉",
     "description": "兼具科學教育與遊樂設施（含室內滑雪場）的親子樂園。",
     "price": 760,
     "indoor": false,
