@@ -168,7 +168,7 @@
         city.districts.forEach(district => {
           const label = document.createElement('label');
           label.className = 'checkbox-label';
-          label.style.border = '1px solid #ccc';  // 加邊框
+          label.style.border = '1px solid #ccc';
           label.style.padding = '4px 8px';
           label.style.marginRight = '8px';
           label.style.display = 'inline-block';
@@ -187,10 +187,8 @@
         container.appendChild(areaDiv);
       });
 
-      // 綁定變更事件（當 checkbox 改變時重新驗證）
       container.addEventListener('change', validatePreferenceSum);
 
-      // 建立行程點擊事件 - 放這裡才抓得到 checkbox
       viewBtn.addEventListener('click', () => {
         const areas = Array.from(document.querySelectorAll('input[name="area"]:checked')).map(cb => cb.value);
         const totalSpots = parseInt(document.getElementById('totalSpots')?.value) || 0;
@@ -201,19 +199,19 @@
         const indoor = document.querySelector('input[name="indoorPref"]:checked')?.value || 'any';
         const startDate = document.getElementById("startDate").value;
         const endDate = document.getElementById("endDate").value;
-        const people = document.getElementById("peopleCount").value;
-        const budget = document.getElementById("budget").value;
+        const peopleCount = parseInt(document.getElementById("peopleCount").value) || 1;
+        const budget = parseInt(document.getElementById("budget").value) || 0;
 
         const params = {
-          areas, // 存入所有選擇的鄉鎮
-            totalSpots,
+          areas,
+          totalSpots,
           photoCount,
           attractionCount,
           restaurantCount,
           indoor,
           startDate,
           endDate,
-          people,
+          peopleCount,
           budget
         };
 
@@ -225,37 +223,35 @@
       console.error("載入 taiwan_districts.json 失敗:", err);
     });
 
-  // 驗證景點數量總和與區域是否有勾選
   function validatePreferenceSum() {
-    const totalSpots = parseInt(document.getElementById('totalSpots')?.value) || 0;
-    const photoCount = parseInt(document.getElementById('photoCount')?.value) || 0;
-    const attractionCount = parseInt(document.getElementById('attractionCount')?.value) || 0;
-    const restaurantCount = parseInt(document.getElementById('restaurantCount')?.value) || 0;
+  const totalSpots = parseInt(document.getElementById('totalSpots')?.value) || 0;
+  const photoCount = parseInt(document.getElementById('photoCount')?.value) || 0;
+  const attractionCount = parseInt(document.getElementById('attractionCount')?.value) || 0;
+  const restaurantCount = parseInt(document.getElementById('restaurantCount')?.value) || 0;
 
-    const sumCounts = photoCount + attractionCount + restaurantCount;
+  const sumCounts = photoCount + attractionCount + restaurantCount;
+  const warning = document.getElementById('totalWarning');
+  const viewBtn = document.getElementById('viewSpotsBtn');
+  const hasAreaChecked = document.querySelectorAll('input[name="area"]:checked').length > 0;
 
-    const warning = document.getElementById('totalWarning');
-    const viewBtn = document.getElementById('viewSpotsBtn');
-    const hasAreaChecked = document.querySelectorAll('input[name="area"]:checked').length > 0;
-
-    if (totalSpots > 0 && sumCounts === totalSpots && hasAreaChecked) {
-      warning.style.display = 'none';
-      viewBtn.disabled = false;
-    } else {
-      warning.style.display = 'block';
-      viewBtn.disabled = true;
-    }
+  if (totalSpots > 0 && sumCounts > 0 && totalSpots >= sumCounts && hasAreaChecked) {
+    warning.style.display = 'none';
+    viewBtn.disabled = false;
+  } else {
+    warning.style.display = 'block';
+    viewBtn.disabled = true;
   }
+}
 
-  // 即時監聽 checkbox 與數量輸入變更，建議在頁面有相應欄位才綁定
+
   ['totalSpots', 'photoCount', 'attractionCount', 'restaurantCount'].forEach(id => {
     const el = document.getElementById(id);
-    if(el) el.addEventListener('input', validatePreferenceSum);
+    if (el) el.addEventListener('input', validatePreferenceSum);
   });
 
-  // 監聽 checkbox 變動
   document.getElementById('areaCheckboxContainer').addEventListener('change', validatePreferenceSum);
 </script>
+
 
 
 </body>
