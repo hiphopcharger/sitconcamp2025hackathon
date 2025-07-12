@@ -1,0 +1,1249 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>台灣旅遊推薦地圖</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Font Awesome CDN -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <style>
+    #map {
+      height: 80vh;
+      width: 100%;
+    }
+    #controls {
+      margin: 10px;
+    }
+
+    /* CSS rules moved from body style attribute */
+    .date-picker .selected {
+        background-color: #3b82f6;
+        color: white;
+    }
+
+    .date-picker .date-range {
+        background-color: #bfdbfe;
+    }
+
+    .date-picker .date-start {
+        background-color: #3b82f6;
+        color: white;
+    }
+
+    .date-picker .date-end {
+        background-color: #3b82f6;
+        color: white;
+    }
+
+    .slider {
+        -webkit-appearance: none;
+        height: 8px;
+        border-radius: 4px;
+        background: #ddd;
+        outline: none;
+    }
+
+    .slider::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background: #3b82f6;
+        cursor: pointer;
+    }
+
+    .slider::-moz-range-thumb {
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background: #3b82f6;
+        cursor: pointer;
+    }
+
+    .draggable {
+        cursor: grab;
+    }
+
+    .draggable:active {
+        cursor: grabbing;
+    }
+
+    .dropzone {
+        min-height: 100px;
+        border: 2px dashed #cbd5e1;
+        border-radius: 0.5rem;
+    }
+
+    .dropzone.active {
+        border-color: #3b82f6;
+        background-color: rgba(59, 130, 246, 0.1);
+    }
+  </style>
+</head>
+<body style="font-family: 'Noto Sans TC', sans-serif; background-color: #f0f9ff;">
+    <!-- 主要內容 -->
+    <div class="container mx-auto px-4 py-8">
+        <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
+            <h1 class="text-2xl font-bold text-center mb-6 text-blue-700">建立您的專屬旅遊計畫</h1>
+
+            <form id="travelForm" class="space-y-8">
+                <!-- 地區選擇 -->
+                <div class="bg-blue-50 p-4 rounded-lg">
+                    <h2 class="text-xl font-semibold mb-4 text-blue-800">
+                        <i class="fas fa-map-marker-alt mr-2"></i>旅遊地點
+                    </h2>
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-gray-700 mb-2">縣市</label>
+                            <select id="city" class="w-full p-3 border border-gray-300 rounded-lg focus:ring focus:ring-blue-200 focus:border-blue-500">
+                                <option value="" disabled selected>請選擇縣市</option>
+                                <option value="taipei">台北市</option>
+                                <option value="newtaipei">新北市</option>
+                                <option value="taoyuan">桃園市</option>
+                                <option value="taichung">台中市</option>
+                                <option value="tainan">台南市</option>
+                                <option value="kaohsiung">高雄市</option>
+                                <option value="yilan">宜蘭縣</option>
+                                <option value="hualien">花蓮縣</option>
+                                <option value="taitung">台東縣</option>
+                                <option value="pingtung">屏東縣</option>
+                                <option value="nantou">南投縣</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 mb-2">區域 (可複選)</label>
+                            <div id="districts" class="grid grid-cols-2 sm:grid-cols-3 gap-2 p-3 border border-gray-300 rounded-lg min-h-[76px] bg-white">
+                                <p class="text-gray-500 col-span-full text-center">請先選擇縣市</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 旅遊偏好 -->
+                <div class="bg-blue-50 p-4 rounded-lg">
+                    <h2 class="text-xl font-semibold mb-4 text-blue-800">
+                        <i class="fas fa-heart mr-2"></i>旅遊偏好
+                    </h2>
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-gray-700 mb-2">室內/室外比例</label>
+                            <div class="flex items-center space-x-4">
+                                <span class="text-sm">室內</span>
+                                <input type="range" id="indoorOutdoorRatio" class="slider flex-grow" min="0" max="100" value="50">
+                                <span class="text-sm">室外</span>
+                                <span id="indoorOutdoorValue" class="ml-2 text-blue-600 font-medium">50%</span>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 mb-2">交通方式</label>
+                            <div class="flex space-x-4">
+                                <label class="inline-flex items-center">
+                                    <input type="radio" name="transportation" value="public" class="form-radio h-5 w-5 text-blue-600" checked>
+                                    <span class="ml-2">大眾運輸</span>
+                                </label>
+                                <label class="inline-flex items-center">
+                                    <input type="radio" name="transportation" value="car" class="form-radio h-5 w-5 text-blue-600">
+                                    <span class="ml-2">自行開車</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-6">
+                        <label class="block text-gray-700 mb-2">旅遊類型偏好 (總和需為 100%)</label>
+                        <div class="grid md:grid-cols-3 gap-4">
+                            <div>
+                                <label class="text-sm text-gray-600">遊玩行程</label>
+                                <div class="flex items-center space-x-2">
+                                    <input type="range" id="playRatio" class="slider flex-grow" min="0" max="100" value="33">
+                                    <span id="playValue" class="text-blue-600 font-medium w-12 text-right">33%</span>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="text-sm text-gray-600">美食行程</label>
+                                <div class="flex items-center space-x-2">
+                                    <input type="range" id="foodRatio" class="slider flex-grow" min="0" max="100" value="33">
+                                    <span id="foodValue" class="text-blue-600 font-medium w-12 text-right">33%</span>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="text-sm text-gray-600">拍照行程</label>
+                                <div class="flex items-center space-x-2">
+                                    <input type="range" id="photoRatio" class="slider flex-grow" min="0" max="100" value="34">
+                                    <span id="photoValue" class="text-blue-600 font-medium w-12 text-right">34%</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-2 flex items-center">
+                            <!-- Corrected structure for stacked bar -->
+                            <div class="w-full bg-gray-200 rounded-full h-2.5 flex overflow-hidden">
+                                <div id="playBar" class="bg-blue-500 h-2.5" style="width: 33%"></div>
+                                <div id="foodBar" class="bg-green-500 h-2.5" style="width: 33%"></div>
+                                <div id="photoBar" class="bg-yellow-500 h-2.5" style="width: 34%"></div>
+                            </div>
+                            <span id="totalRatio" class="ml-3 text-sm font-medium text-gray-700">總和: 100%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 旅遊日期 -->
+                <div class="bg-blue-50 p-4 rounded-lg">
+                    <h2 class="text-xl font-semibold mb-4 text-blue-800">
+                        <i class="far fa-calendar-alt mr-2"></i>旅遊日期
+                    </h2>
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div>
+                            <div class="flex justify-between mb-2">
+                                <span id="currentMonth" class="text-gray-700 font-medium"></span>
+                                <div>
+                                    <button type="button" id="prevMonth" class="text-blue-600 hover:text-blue-800">
+                                        <i class="fas fa-chevron-left"></i>
+                                    </button>
+                                    <button type="button" id="nextMonth" class="text-blue-600 hover:text-blue-800 ml-4">
+                                        <i class="fas fa-chevron-right"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="date-picker bg-white border border-gray-300 rounded-lg p-2">
+                                <div class="grid grid-cols-7 gap-1 mb-1">
+                                    <div class="text-center text-sm font-medium text-gray-600">日</div>
+                                    <div class="text-center text-sm font-medium text-gray-600">一</div>
+                                    <div class="text-center text-sm font-medium text-gray-600">二</div>
+                                    <div class="text-center text-sm font-medium text-gray-600">三</div>
+                                    <div class="text-center text-sm font-medium text-gray-600">四</div>
+                                    <div class="text-center text-sm font-medium text-gray-600">五</div>
+                                    <div class="text-center text-sm font-medium text-gray-600">六</div>
+                                </div>
+                                <div id="calendar" class="grid grid-cols-7 gap-1"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 mb-2">已選擇日期</label>
+                            <div class="bg-white border border-gray-300 rounded-lg p-3 min-h-[100px]">
+                                <div id="selectedDates" class="space-y-2">
+                                    <p class="text-gray-500 text-center">尚未選擇日期</p>
+                                </div>
+                            </div>
+                            <div class="mt-3 text-sm text-gray-600">
+                                <p>* 點擊日期選擇開始日期，再點擊選擇結束日期</p>
+                                <p>* 若要重新選擇，請點擊第三下</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 預算設定 -->
+                <div class="bg-blue-50 p-4 rounded-lg">
+                    <h2 class="text-xl font-semibold mb-4 text-blue-800">
+                        <i class="fas fa-coins mr-2"></i>預算設定
+                    </h2>
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-gray-700 mb-2">總預算限制</label>
+                            <div class="flex">
+                                <span class="inline-flex items-center px-3 text-gray-500 bg-gray-100 border border-r-0 border-gray-300 rounded-l-md">
+                                    NT$
+                                </span>
+                                <input type="number" id="totalBudget" min="0" class="flex-grow p-3 border border-gray-300 rounded-r-lg focus:ring focus:ring-blue-200 focus:border-blue-500" placeholder="請輸入總預算">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 mb-2">遊玩人數</label>
+                            <div class="flex items-center">
+                                <button type="button" id="decreasePeople" class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-2 px-4 rounded-l">
+                                    <i class="fas fa-minus"></i>
+                                </button>
+                                <input type="number" id="peopleCount" class="w-20 text-center p-2 border-t border-b border-gray-300" value="1" min="1" readonly>
+                                <button type="button" id="increasePeople" class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-2 px-4 rounded-r">
+                                    <i class="fas fa-plus"></i>
+                                </button>
+                                <span class="ml-4 text-gray-600">人</span>
+                                <span id="perPersonBudget" class="ml-4 text-blue-600 font-medium">平均每人: NT$ 0</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-6">
+                        <div class="flex items-center mb-3">
+                            <input type="checkbox" id="advancedBudget" class="form-checkbox h-5 w-5 text-blue-600">
+                            <label for="advancedBudget" class="ml-2 text-gray-700">進階預算設定</label>
+                        </div>
+                        <div id="advancedBudgetOptions" class="grid md:grid-cols-2 gap-4 hidden">
+                            <div>
+                                <label class="block text-gray-700 mb-2">住宿預算</label>
+                                <div class="flex">
+                                    <span class="inline-flex items-center px-3 text-gray-500 bg-gray-100 border border-r-0 border-gray-300 rounded-l-md">
+                                        NT$
+                                    </span>
+                                    <input type="number" id="hotelBudget" min="0" class="flex-grow p-3 border border-gray-300 rounded-r-lg focus:ring focus:ring-blue-200 focus:border-blue-500" placeholder="住宿預算">
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-gray-700 mb-2">其他預算 (交通、門票、餐飲)</label>
+                                <div class="flex">
+                                    <span class="inline-flex items-center px-3 text-gray-500 bg-gray-100 border border-r-0 border-gray-300 rounded-l-md">
+                                        NT$
+                                    </span>
+                                    <input type="number" id="otherBudget" min="0" class="flex-grow p-3 border border-gray-300 rounded-r-lg focus:ring focus:ring-blue-200 focus:border-blue-500" placeholder="其他預算">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 指定景點 -->
+                <div class="bg-blue-50 p-4 rounded-lg">
+                    <h2 class="text-xl font-semibold mb-4 text-blue-800">
+                        <i class="fas fa-map-pin mr-2"></i>指定必去景點
+                    </h2>
+                    <div class="mb-4">
+                        <div class="flex">
+                            <input type="text" id="searchPlace" class="flex-grow p-3 border border-gray-300 rounded-l-lg focus:ring focus:ring-blue-200 focus:border-blue-500" placeholder="搜尋景點...">
+                            <button type="button" id="searchButton" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-r-lg">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div id="searchResults" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 mb-4 hidden">
+                        <!-- 搜尋結果將在這裡動態生成 -->
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 mb-2">已選擇的必去景點</label>
+                        <div id="selectedPlaces" class="min-h-[100px] p-3 bg-white border border-gray-300 rounded-lg">
+                            <p class="text-gray-500 text-center">尚未選擇景點</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 生成按鈕 -->
+                <div class="text-center">
+                    <button type="button" id="generateButton" class="bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-700 hover:to-cyan-600 text-white font-bold py-3 px-8 rounded-full shadow-lg transform transition hover:scale-105">
+                        <i class="fas fa-magic mr-2"></i>生成專屬旅遊行程
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- 行程結果 (初始隱藏) -->
+        <div id="resultSection" class="hidden">
+            <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
+                <h2 class="text-2xl font-bold text-center mb-6 text-blue-700">您的專屬旅遊行程</h2>
+
+                <div class="grid md:grid-cols-3 gap-6">
+                    <!-- 推薦行程 -->
+                    <div class="md:col-span-2">
+                        <h3 class="text-xl font-semibold mb-4 text-blue-800">
+                            <i class="fas fa-route mr-2"></i>推薦行程
+                        </h3>
+
+                        <div class="space-y-6">
+                            <!-- 行程標籤 -->
+                            <div class="flex border-b border-gray-200">
+                                <button type="button" class="itinerary-tab py-2 px-4 font-medium text-blue-600 border-b-2 border-blue-600" data-tab="itinerary1">行程方案 1</button>
+                                <button type="button" class="itinerary-tab py-2 px-4 font-medium text-gray-500 hover:text-blue-600" data-tab="itinerary2">行程方案 2</button>
+                                <button type="button" class="itinerary-tab py-2 px-4 font-medium text-gray-500 hover:text-blue-600" data-tab="itinerary3">行程方案 3</button>
+                            </div>
+
+                            <!-- 行程內容 -->
+                            <div id="itinerary1" class="itinerary-content">
+                                <div class="space-y-4">
+                                    <div class="bg-blue-50 p-4 rounded-lg">
+                                        <h4 class="font-medium text-blue-800">第 1 天 (2023/12/25)</h4>
+                                        <div class="mt-3 space-y-3">
+                                            <div class="flex items-start">
+                                                <div class="bg-blue-600 text-white rounded-full w-6 h-6 flex items-center justify-center flex-shrink-0 mt-1">
+                                                    <span class="text-xs">1</span>
+                                                </div>
+                                                <div class="ml-3">
+                                                    <p class="font-medium">台北 101</p>
+                                                    <p class="text-sm text-gray-600">09:00 - 11:00 | 門票: NT$600/人</p>
+                                                    <p class="text-sm text-gray-600">台北市信義區信義路五段7號</p>
+                                                </div>
+                                            </div>
+                                            <div class="flex items-center pl-3">
+                                                <div class="h-10 border-l-2 border-dashed border-gray-300"></div>
+                                                <div class="ml-3">
+                                                    <p class="text-sm text-gray-500">
+                                                        <i class="fas fa-walking mr-1"></i>步行 10 分鐘 (650公尺)
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <div class="flex items-start">
+                                                <div class="bg-blue-600 text-white rounded-full w-6 h-6 flex items-center justify-center flex-shrink-0 mt-1">
+                                                    <span class="text-xs">2</span>
+                                                </div>
+                                                <div class="ml-3">
+                                                    <p class="font-medium">松山文創園區</p>
+                                                    <p class="text-sm text-gray-600">11:30 - 13:30 | 免費入場</p>
+                                                    <p class="text-sm text-gray-600">台北市信義區光復南路133號</p>
+                                                </div>
+                                            </div>
+                                            <div class="flex items-center pl-3">
+                                                <div class="h-10 border-l-2 border-dashed border-gray-300"></div>
+                                                <div class="ml-3">
+                                                    <p class="text-sm text-gray-500">
+                                                        <i class="fas fa-utensils mr-1"></i>午餐 | 文青風小餐館 | 約 NT$350/人
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <div class="flex items-start">
+                                                <div class="bg-blue-600 text-white rounded-full w-6 h-6 flex items-center justify-center flex-shrink-0 mt-1">
+                                                    <span class="text-xs">3</span>
+                                                </div>
+                                                <div class="ml-3">
+                                                    <p class="font-medium">誠品信義店</p>
+                                                    <p class="text-sm text-gray-600">14:00 - 16:00 | 免費入場</p>
+                                                    <p class="text-sm text-gray-600">台北市信義區松高路11號</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="bg-blue-50 p-4 rounded-lg">
+                                        <h4 class="font-medium text-blue-800">第 2 天 (2023/12/26)</h4>
+                                        <div class="mt-3 space-y-3">
+                                            <div class="flex items-start">
+                                                <div class="bg-blue-600 text-white rounded-full w-6 h-6 flex items-center justify-center flex-shrink-0 mt-1">
+                                                    <span class="text-xs">1</span>
+                                                </div>
+                                                <div class="ml-3">
+                                                    <p class="font-medium">國立故宮博物院</p>
+                                                    <p class="text-sm text-gray-600">09:00 - 12:00 | 門票: NT$350/人</p>
+                                                    <p class="text-sm text-gray-600">台北市士林區至善路二段221號</p>
+                                                </div>
+                                            </div>
+                                            <div class="flex items-center pl-3">
+                                                <div class="h-10 border-l-2 border-dashed border-gray-300"></div>
+                                                <div class="ml-3">
+                                                    <p class="text-sm text-gray-500">
+                                                        <i class="fas fa-bus mr-1"></i>搭乘公車 (約 20 分鐘)
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <div class="flex items-start">
+                                                <div class="bg-blue-600 text-white rounded-full w-6 h-6 flex items-center justify-center flex-shrink-0 mt-1">
+                                                    <span class="text-xs">2</span>
+                                                </div>
+                                                <div class="ml-3">
+                                                    <p class="font-medium">士林官邸</p>
+                                                    <p class="text-sm text-gray-600">13:00 - 15:00 | 門票: NT$100/人</p>
+                                                    <p class="text-sm text-gray-600">台北市士林區福林路60號</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div id="itinerary2" class="itinerary-content hidden">
+                                <div class="space-y-4">
+                                    <div class="bg-blue-50 p-4 rounded-lg">
+                                        <h4 class="font-medium text-blue-800">第 1 天 (2023/12/25)</h4>
+                                        <div class="mt-3 space-y-3">
+                                            <div class="flex items-start">
+                                                <div class="bg-blue-600 text-white rounded-full w-6 h-6 flex items-center justify-center flex-shrink-0 mt-1">
+                                                    <span class="text-xs">1</span>
+                                                </div>
+                                                <div class="ml-3">
+                                                    <p class="font-medium">北投溫泉博物館</p>
+                                                    <p class="text-sm text-gray-600">10:00 - 12:00 | 免費入場</p>
+                                                    <p class="text-sm text-gray-600">台北市北投區中山路2號</p>
+                                                </div>
+                                            </div>
+                                            <div class="flex items-center pl-3">
+                                                <div class="h-10 border-l-2 border-dashed border-gray-300"></div>
+                                                <div class="ml-3">
+                                                    <p class="text-sm text-gray-500">
+                                                        <i class="fas fa-utensils mr-1"></i>午餐 | 北投老街美食 | 約 NT$300/人
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <div class="flex items-start">
+                                                <div class="bg-blue-600 text-white rounded-full w-6 h-6 flex items-center justify-center flex-shrink-0 mt-1">
+                                                    <span class="text-xs">2</span>
+                                                </div>
+                                                <div class="ml-3">
+                                                    <p class="font-medium">地熱谷</p>
+                                                    <p class="text-sm text-gray-600">13:30 - 15:00 | 免費入場</p>
+                                                    <p class="text-sm text-gray-600">台北市北投區中山路</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div id="itinerary3" class="itinerary-content hidden">
+                                <div class="space-y-4">
+                                    <div class="bg-blue-50 p-4 rounded-lg">
+                                        <h4 class="font-medium text-blue-800">第 1 天 (2023/12/25)</h4>
+                                        <div class="mt-3 space-y-3">
+                                            <div class="flex items-start">
+                                                <div class="bg-blue-600 text-white rounded-full w-6 h-6 flex items-center justify-center flex-shrink-0 mt-1">
+                                                    <span class="text-xs">1</span>
+                                                </div>
+                                                <div class="ml-3">
+                                                    <p class="font-medium">九份老街</p>
+                                                    <p class="text-sm text-gray-600">10:00 - 14:00 | 免費入場</p>
+                                                    <p class="text-sm text-gray-600">新北市瑞芳區基山街</p>
+                                                </div>
+                                            </div>
+                                            <div class="flex items-center pl-3">
+                                                <div class="h-10 border-l-2 border-dashed border-gray-300"></div>
+                                                <div class="ml-3">
+                                                    <p class="text-sm text-gray-500">
+                                                        <i class="fas fa-utensils mr-1"></i>午餐 | 九份特色小吃 | 約 NT$250/人
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <div class="flex items-start">
+                                                <div class="bg-blue-600 text-white rounded-full w-6 h-6 flex items-center justify-center flex-shrink-0 mt-1">
+                                                    <span class="text-xs">2</span>
+                                                </div>
+                                                <div class="ml-3">
+                                                    <p class="font-medium">金瓜石黃金博物館</p>
+                                                    <p class="text-sm text-gray-600">15:00 - 17:00 | 門票: NT$80/人</p>
+                                                    <p class="text-sm text-gray-600">新北市瑞芳區金光路8號</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 行程統計 -->
+                            <div class="bg-gray-50 p-4 rounded-lg">
+                                <h4 class="font-medium text-gray-700 mb-3">行程統計</h4>
+                                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                    <div class="text-center">
+                                        <p class="text-sm text-gray-600">總天數</p>
+                                        <p class="text-xl font-bold text-blue-600">2 天</p>
+                                    </div>
+                                    <div class="text-center">
+                                        <p class="text-sm text-gray-600">景點數量</p>
+                                        <p class="text-xl font-bold text-blue-600">5 個</p>
+                                    </div>
+                                    <div class="text-center">
+                                        <p class="text-sm text-gray-600">總花費 (預估)</p>
+                                        <p class="text-xl font-bold text-blue-600">NT$ 1,400/人</p>
+                                    </div>
+                                    <div class="text-center">
+                                        <p class="text-sm text-gray-600">總距離</p>
+                                        <p class="text-xl font-bold text-blue-600">15.2 公里</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 行程圖表 -->
+                            <div class="bg-white p-4 rounded-lg border border-gray-200">
+                                <h4 class="font-medium text-gray-700 mb-3">行程分析</h4>
+                                <div class="grid md:grid-cols-2 gap-6">
+                                    <div>
+                                        <canvas id="typeChart" height="200"></canvas>
+                                    </div>
+                                    <div>
+                                        <canvas id="budgetChart" height="200"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 景點列表 -->
+                    <div>
+                        <div class="sticky top-4">
+                            <h3 class="text-xl font-semibold mb-4 text-blue-800">
+                                <i class="fas fa-map-marker-alt mr-2"></i>景點列表
+                            </h3>
+
+                            <!-- 已選擇景點 -->
+                            <div class="bg-white p-4 rounded-lg border border-gray-200 mb-4">
+                                <h4 class="font-medium text-gray-700 mb-3">已選擇景點</h4>
+                                <div id="selectedAttractions" class="space-y-2">
+                                    <div class="p-2 bg-blue-50 rounded flex justify-between items-center">
+                                        <span>台北 101</span>
+                                        <button type="button" class="text-red-500 hover:text-red-700">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </div>
+                                    <div class="p-2 bg-blue-50 rounded flex justify-between items-center">
+                                        <span>松山文創園區</span>
+                                        <button type="button" class="text-red-500 hover:text-red-700">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </div>
+                                    <div class="p-2 bg-blue-50 rounded flex justify-between items-center">
+                                        <span>誠品信義店</span>
+                                        <button type="button" class="text-red-500 hover:text-red-700">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 推薦景點 -->
+                            <div class="bg-white p-4 rounded-lg border border-gray-200 mb-4">
+                                <h4 class="font-medium text-gray-700 mb-3">推薦景點</h4>
+                                <div id="recommendedAttractions" class="space-y-2">
+                                    <div class="p-2 bg-gray-50 rounded flex justify-between items-center">
+                                        <span>國立故宮博物院</span>
+                                        <button type="button" class="text-blue-500 hover:text-blue-700">
+                                            <i class="fas fa-plus"></i>
+                                        </button>
+                                    </div>
+                                    <div class="p-2 bg-gray-50 rounded flex justify-between items-center">
+                                        <span>士林官邸</span>
+                                        <button type="button" class="text-blue-500 hover:text-blue-700">
+                                            <i class="fas fa-plus"></i>
+                                        </button>
+                                    </div>
+                                    <div class="p-2 bg-gray-50 rounded flex justify-between items-center">
+                                        <span>中正紀念堂</span>
+                                        <button type="button" class="text-blue-500 hover:text-blue-700">
+                                            <i class="fas fa-plus"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 或許你喜歡 -->
+                            <div class="bg-white p-4 rounded-lg border border-gray-200">
+                                <h4 class="font-medium text-gray-700 mb-3">或許你喜歡</h4>
+                                <div id="suggestedAttractions" class="space-y-2">
+                                    <div class="p-2 bg-yellow-50 rounded flex justify-between items-center">
+                                        <span>九份老街 (新北市)</span>
+                                        <button type="button" class="text-blue-500 hover:text-blue-700">
+                                            <i class="fas fa-plus"></i>
+                                        </button>
+                                    </div>
+                                    <div class="p-2 bg-yellow-50 rounded flex justify-between items-center">
+                                        <span>陽明山國家公園</span>
+                                        <button type="button" class="text-blue-500 hover:text-blue-700">
+                                            <i class="fas fa-plus"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 頁腳 -->
+    <footer class="bg-gray-800 text-white py-6">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="mb-4 md:mb-0">
+                    <h3 class="text-xl font-bold mb-2">台灣旅遊規劃</h3>
+                    <p class="text-gray-400">打造您的專屬旅遊體驗</p>
+                </div>
+                <div class="flex space-x-4">
+                    <a href="#" class="hover:text-blue-400 transition">
+                        <i class="fab fa-facebook-f"></i>
+                    </a>
+                    <a href="#" class="hover:text-blue-400 transition">
+                        <i class="fab fa-instagram"></i>
+                    </a>
+                    <a href="#" class="hover:text-blue-400 transition">
+                        <i class="fab fa-twitter"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="mt-6 text-center text-gray-400 text-sm">
+                <p>&copy; 2023 台灣旅遊規劃. 版權所有.</p>
+            </div>
+        </div>
+    </footer>
+
+<!-- Chart.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // 縣市和區域選擇
+        const citySelect = document.getElementById('city');
+        const districtsContainer = document.getElementById('districts');
+
+        const cityDistricts = {
+            taipei: ['中正區', '大同區', '中山區', '松山區', '大安區', '萬華區', '信義區', '士林區', '北投區', '內湖區', '南港區', '文山區'],
+            newtaipei: ['板橋區', '三重區', '中和區', '永和區', '新莊區', '新店區', '土城區', '蘆洲區', '汐止區', '樹林區', '淡水區', '三峽區', '鶯歌區'],
+            taoyuan: ['桃園區', '中壢區', '平鎮區', '八德區', '楊梅區', '蘆竹區', '龜山區', '龍潭區', '大溪區', '大園區'],
+            taichung: ['中區', '東區', '南區', '西區', '北區', '北屯區', '西屯區', '南屯區', '太平區', '大里區', '霧峰區', '烏日區'],
+            tainan: ['中西區', '東區', '南區', '北區', '安平區', '安南區', '永康區', '仁德區', '歸仁區', '新化區'],
+            kaohsiung: ['楠梓區', '左營區', '鼓山區', '三民區', '苓雅區', '新興區', '前金區', '鹽埕區', '前鎮區', '旗津區', '小港區'],
+            yilan: ['宜蘭市', '羅東鎮', '礁溪鄉', '頭城鎮', '冬山鄉', '五結鄉', '蘇澳鎮'],
+            hualien: ['花蓮市', '新城鄉', '吉安鄉', '壽豐鄉', '鳳林鎮', '光復鄉', '瑞穗鄉', '玉里鎮'],
+            taitung: ['台東市', '成功鎮', '關山鎮', '卑南鄉', '鹿野鄉', '池上鄉', '東河鄉'],
+            pingtung: ['屏東市', '潮州鎮', '東港鎮', '恆春鎮', '萬丹鄉', '長治鄉', '車城鄉'],
+            nantou: ['南投市', '埔里鎮', '草屯鎮', '集集鎮', '魚池鄉', '信義鄉', '仁愛鄉']
+        };
+
+        citySelect.addEventListener('change', function() {
+            const selectedCity = this.value;
+            districtsContainer.innerHTML = '';
+
+            if (selectedCity && cityDistricts[selectedCity]) {
+                cityDistricts[selectedCity].forEach(district => {
+                    const label = document.createElement('label');
+                    label.className = 'inline-flex items-center p-2 border border-gray-200 rounded-lg hover:bg-blue-50';
+
+                    const checkbox = document.createElement('input');
+                    checkbox.type = 'checkbox';
+                    checkbox.name = 'district';
+                    checkbox.value = district;
+                    checkbox.className = 'form-checkbox h-4 w-4 text-blue-600';
+
+                    const span = document.createElement('span');
+                    span.className = 'ml-2 text-sm';
+                    span.textContent = district;
+
+                    label.appendChild(checkbox);
+                    label.appendChild(span);
+                    districtsContainer.appendChild(label);
+                });
+            } else {
+                districtsContainer.innerHTML = '<p class="text-gray-500 col-span-full text-center">請先選擇縣市</p>';
+            }
+        });
+
+        // 室內/室外比例滑桿
+        const indoorOutdoorSlider = document.getElementById('indoorOutdoorRatio');
+        const indoorOutdoorValue = document.getElementById('indoorOutdoorValue');
+
+        indoorOutdoorSlider.addEventListener('input', function() {
+            const value = this.value;
+            indoorOutdoorValue.textContent = `${value}%`;
+        });
+
+        // 旅遊類型偏好滑桿
+        const playRatioSlider = document.getElementById('playRatio');
+        const foodRatioSlider = document.getElementById('foodRatio');
+        const photoRatioSlider = document.getElementById('photoRatio');
+
+        const playValue = document.getElementById('playValue');
+        const foodValue = document.getElementById('foodValue');
+        const photoValue = document.getElementById('photoValue');
+
+        const playBar = document.getElementById('playBar');
+        const foodBar = document.getElementById('foodBar');
+        const photoBar = document.getElementById('photoBar');
+
+        const totalRatio = document.getElementById('totalRatio');
+
+        function updateRatios() {
+            const playVal = parseInt(playRatioSlider.value);
+            const foodVal = parseInt(foodRatioSlider.value);
+            const photoVal = parseInt(photoRatioSlider.value);
+
+            const total = playVal + foodVal + photoVal;
+
+            playValue.textContent = `${playVal}%`;
+            foodValue.textContent = `${foodVal}%`;
+            photoValue.textContent = `${photoVal}%`;
+
+            playBar.style.width = `${playVal}%`;
+            foodBar.style.width = `${foodVal}%`;
+            photoBar.style.width = `${photoVal}%`;
+
+            totalRatio.textContent = `總和: ${total}%`;
+            totalRatio.className = total === 100 ? 'ml-3 text-sm font-medium text-green-600' : 'ml-3 text-sm font-medium text-red-600';
+        }
+
+        // Add event listeners for ratio sliders
+        playRatioSlider.addEventListener('input', updateRatios);
+        foodRatioSlider.addEventListener('input', updateRatios);
+        photoRatioSlider.addEventListener('input', updateRatios);
+
+        // Initial update for ratios
+        updateRatios();
+
+
+        // 日期選擇器
+        const calendar = document.getElementById('calendar');
+        const currentMonthElement = document.getElementById('currentMonth');
+        const prevMonthButton = document.getElementById('prevMonth');
+        const nextMonthButton = document.getElementById('nextMonth');
+        const selectedDatesContainer = document.getElementById('selectedDates');
+
+        let currentDate = new Date();
+        let currentMonth = currentDate.getMonth();
+        let currentYear = currentDate.getFullYear();
+
+        let startDate = null;
+        let endDate = null;
+
+        function renderCalendar() {
+            calendar.innerHTML = '';
+
+            const firstDay = new Date(currentYear, currentMonth, 1);
+            const lastDay = new Date(currentYear, currentMonth + 1, 0);
+
+            currentMonthElement.textContent = `${currentYear}年 ${currentMonth + 1}月`;
+
+            // 填充月份第一天之前的空白
+            for (let i = 0; i < firstDay.getDay(); i++) {
+                const emptyDay = document.createElement('div');
+                emptyDay.className = 'h-8';
+                calendar.appendChild(emptyDay);
+            }
+
+            // 填充日期
+            for (let day = 1; day <= lastDay.getDate(); day++) {
+                const date = new Date(currentYear, currentMonth, day);
+                const dateDiv = document.createElement('div');
+
+                dateDiv.textContent = day;
+                dateDiv.className = 'h-8 flex items-center justify-center text-sm rounded-full cursor-pointer hover:bg-blue-100';
+
+                // 禁用過去的日期
+                if (date < new Date(new Date().setHours(0, 0, 0, 0))) {
+                    dateDiv.className = 'h-8 flex items-center justify-center text-sm rounded-full text-gray-400 cursor-not-allowed';
+                } else {
+                    // 檢查是否為已選擇的日期
+                    if (startDate && date.toDateString() === startDate.toDateString()) {
+                        dateDiv.classList.add('date-start');
+                    } else if (endDate && date.toDateString() === endDate.toDateString()) {
+                        dateDiv.classList.add('date-end');
+                    } else if (startDate && endDate && date > startDate && date < endDate) {
+                        dateDiv.classList.add('date-range');
+                    }
+
+                    dateDiv.addEventListener('click', function() {
+                        const selectedDate = new Date(currentYear, currentMonth, day);
+                        selectedDate.setHours(0, 0, 0, 0); // Normalize time to compare dates only
+
+                        if (!startDate || (startDate && endDate) || selectedDate < startDate) {
+                            // 重新開始選擇
+                            startDate = selectedDate;
+                            endDate = null;
+                        } else {
+                            // 選擇結束日期
+                            endDate = selectedDate;
+                        }
+
+                        updateSelectedDates();
+                        renderCalendar();
+                    });
+                }
+
+                calendar.appendChild(dateDiv);
+            }
+        }
+
+        function updateSelectedDates() {
+            if (startDate) {
+                const options = { year: 'numeric', month: '2-digit', day: '2-digit' };
+
+                if (endDate) {
+                    const startFormatted = startDate.toLocaleDateString('zh-TW', options);
+                    const endFormatted = endDate.toLocaleDateString('zh-TW', options);
+
+                    // 計算天數差異
+                    const diffTime = Math.abs(endDate - startDate);
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+
+                    selectedDatesContainer.innerHTML = `
+                        <div class="bg-blue-100 p-3 rounded-lg">
+                            <p class="font-medium">已選擇 ${diffDays} 天</p>
+                            <p>從 ${startFormatted} 到 ${endFormatted}</p>
+                        </div>
+                    `;
+                } else {
+                    const startFormatted = startDate.toLocaleDateString('zh-TW', options);
+                    selectedDatesContainer.innerHTML = `
+                        <div class="bg-blue-100 p-3 rounded-lg">
+                            <p class="font-medium">開始日期</p>
+                            <p>${startFormatted}</p>
+                            <p class="text-gray-600 text-sm mt-1">請選擇結束日期</p>
+                        </div>
+                    `;
+                }
+            } else {
+                selectedDatesContainer.innerHTML = '<p class="text-gray-500 text-center">尚未選擇日期</p>';
+            }
+        }
+
+        prevMonthButton.addEventListener('click', function() {
+            currentMonth--;
+            if (currentMonth < 0) {
+                currentMonth = 11;
+                currentYear--;
+            }
+            renderCalendar();
+        });
+
+        nextMonthButton.addEventListener('click', function() {
+            currentMonth++;
+            if (currentMonth > 11) {
+                currentMonth = 0;
+                currentYear++;
+            }
+            renderCalendar();
+        });
+
+        renderCalendar();
+
+        // 進階預算設定
+        const advancedBudgetCheckbox = document.getElementById('advancedBudget');
+        const advancedBudgetOptions = document.getElementById('advancedBudgetOptions');
+
+        advancedBudgetCheckbox.addEventListener('change', function() {
+            advancedBudgetOptions.classList.toggle('hidden', !this.checked);
+        });
+
+        // 遊玩人數
+        const decreasePeopleButton = document.getElementById('decreasePeople');
+        const increasePeopleButton = document.getElementById('increasePeople');
+        const peopleCountInput = document.getElementById('peopleCount');
+        const totalBudgetInput = document.getElementById('totalBudget');
+        const perPersonBudget = document.getElementById('perPersonBudget');
+
+        decreasePeopleButton.addEventListener('click', function() {
+            const currentValue = parseInt(peopleCountInput.value);
+            if (currentValue > 1) {
+                peopleCountInput.value = currentValue - 1;
+                updatePerPersonBudget();
+            }
+        });
+
+        increasePeopleButton.addEventListener('click', function() {
+            const currentValue = parseInt(peopleCountInput.value);
+            peopleCountInput.value = currentValue + 1;
+            updatePerPersonBudget();
+        });
+
+        totalBudgetInput.addEventListener('input', updatePerPersonBudget);
+
+        function updatePerPersonBudget() {
+            const totalBudget = parseInt(totalBudgetInput.value) || 0;
+            const peopleCount = parseInt(peopleCountInput.value);
+
+            if (totalBudget > 0 && peopleCount > 0) {
+                const budgetPerPerson = Math.round(totalBudget / peopleCount);
+                perPersonBudget.textContent = `平均每人: NT$ ${budgetPerPerson.toLocaleString()}`;
+            } else {
+                perPersonBudget.textContent = '平均每人: NT$ 0';
+            }
+        }
+
+        // 搜尋景點
+        const searchInput = document.getElementById('searchPlace');
+        const searchButton = document.getElementById('searchButton');
+        const searchResults = document.getElementById('searchResults');
+        const selectedPlaces = document.getElementById('selectedPlaces');
+
+        // 模擬景點資料
+        const placesData = [
+            { id: 1, name: '台北 101', city: 'taipei', district: '信義區', type: 'attraction' },
+            { id: 2, name: '國立故宮博物院', city: 'taipei', district: '士林區', type: 'museum' },
+            { id: 3, name: '中正紀念堂', city: 'taipei', district: '中正區', type: 'attraction' },
+            { id: 4, name: '西門町', city: 'taipei', district: '萬華區', type: 'shopping' },
+            { id: 5, name: '九份老街', city: 'newtaipei', district: '瑞芳區', type: 'attraction' },
+            { id: 6, name: '淡水老街', city: 'newtaipei', district: '淡水區', type: 'attraction' },
+            { id: 7, name: '日月潭', city: 'nantou', district: '魚池鄉', type: 'nature' },
+            { id: 8, name: '阿里山', city: 'chiayi', district: '阿里山鄉', type: 'nature' },
+            { id: 9, name: '墾丁國家公園', city: 'pingtung', district: '恆春鎮', type: 'nature' },
+            { id: 10, name: '太魯閣國家公園', city: 'hualien', district: '秀林鄉', type: 'nature' }
+        ];
+
+        const selectedPlacesSet = new Set();
+
+        searchButton.addEventListener('click', function() {
+            const searchTerm = searchInput.value.trim().toLowerCase();
+
+            if (searchTerm.length < 2) {
+                alert('請輸入至少兩個字進行搜尋');
+                return;
+            }
+
+            const results = placesData.filter(place =>
+                place.name.toLowerCase().includes(searchTerm)
+            );
+
+            if (results.length > 0) {
+                searchResults.classList.remove('hidden');
+                searchResults.innerHTML = '';
+
+                results.forEach(place => {
+                    const placeCard = document.createElement('div');
+                    placeCard.className = 'bg-white p-3 rounded-lg border border-gray-200 hover:shadow-md transition';
+
+                    let typeIcon = '';
+                    switch (place.type) {
+                        case 'attraction':
+                            typeIcon = '<i class="fas fa-landmark text-blue-500"></i>';
+                            break;
+                        case 'museum':
+                            typeIcon = '<i class="fas fa-university text-purple-500"></i>';
+                            break;
+                        case 'shopping':
+                            typeIcon = '<i class="fas fa-shopping-bag text-pink-500"></i>';
+                            break;
+                        case 'nature':
+                            typeIcon = '<i class="fas fa-mountain text-green-500"></i>';
+                            break;
+                        default:
+                            typeIcon = '<i class="fas fa-map-marker-alt text-red-500"></i>';
+                    }
+
+                    placeCard.innerHTML = `
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <h4 class="font-medium">${place.name}</h4>
+                                <p class="text-sm text-gray-600">${getCityName(place.city)} ${place.district}</p>
+                            </div>
+                            <div class="text-xl">
+                                ${typeIcon}
+                            </div>
+                        </div>
+                        <button type="button" class="mt-2 w-full py-1 px-3 bg-blue-100 hover:bg-blue-200 text-blue-700 rounded text-sm transition add-place" data-id="${place.id}">
+                            <i class="fas fa-plus mr-1"></i>加入必去景點
+                        </button>
+                    `;
+
+                    searchResults.appendChild(placeCard);
+
+                    // 添加點擊事件
+                    const addButton = placeCard.querySelector('.add-place');
+                    addButton.addEventListener('click', function() {
+                        const placeId = parseInt(this.getAttribute('data-id'));
+                        addSelectedPlace(placeId);
+                    });
+                });
+            } else {
+                searchResults.classList.remove('hidden');
+                searchResults.innerHTML = '<p class="text-center text-gray-500 p-4">沒有找到符合的景點</p>';
+            }
+        });
+
+        function getCityName(cityCode) {
+            const cityNames = {
+                taipei: '台北市',
+                newtaipei: '新北市',
+                taoyuan: '桃園市',
+                taichung: '台中市',
+                tainan: '台南市',
+                kaohsiung: '高雄市',
+                yilan: '宜蘭縣',
+                hualien: '花蓮縣',
+                taitung: '台東縣',
+                pingtung: '屏東縣',
+                nantou: '南投縣',
+                chiayi: '嘉義縣'
+            };
+
+            return cityNames[cityCode] || cityCode;
+        }
+
+        function addSelectedPlace(placeId) {
+            if (selectedPlacesSet.has(placeId)) {
+                alert('此景點已加入必去清單');
+                return;
+            }
+
+            const place = placesData.find(p => p.id === placeId);
+            if (place) {
+                selectedPlacesSet.add(placeId);
+
+                if (selectedPlacesSet.size === 1) {
+                    selectedPlaces.innerHTML = '';
+                }
+
+                const placeElement = document.createElement('div');
+                placeElement.className = 'p-2 bg-blue-50 rounded flex justify-between items-center mb-2';
+                placeElement.innerHTML = `
+                    <span>${place.name}</span>
+                    <button type="button" class="text-red-500 hover:text-red-700 remove-place" data-id="${place.id}">
+                        <i class="fas fa-times"></i>
+                    </button>
+                `;
+
+                selectedPlaces.appendChild(placeElement);
+
+                // 添加刪除事件
+                const removeButton = placeElement.querySelector('.remove-place');
+                removeButton.addEventListener('click', function() {
+                    const placeId = parseInt(this.getAttribute('data-id'));
+                    selectedPlacesSet.delete(placeId);
+                    placeElement.remove();
+
+                    if (selectedPlacesSet.size === 0) {
+                        selectedPlaces.innerHTML = '<p class="text-gray-500 text-center">尚未選擇景點</p>';
+                    }
+                });
+            }
+        }
+
+        // 生成行程按鈕
+        const generateButton = document.getElementById('generateButton');
+        const resultSection = document.getElementById('resultSection');
+
+        generateButton.addEventListener('click', function() {
+            // 驗證表單
+            let isValid = true;
+            let errorMessage = '';
+
+            // 檢查縣市選擇
+            if (!citySelect.value) {
+                isValid = false;
+                errorMessage = '請選擇縣市';
+            }
+
+            // 檢查日期選擇
+            if (!startDate || !endDate) {
+                isValid = false;
+                errorMessage = '請選擇旅遊日期的開始和結束日期';
+            }
+
+            // 檢查旅遊類型總和
+            const playVal = parseInt(playRatioSlider.value);
+            const foodVal = parseInt(foodRatioSlider.value);
+            const photoVal = parseInt(photoRatioSlider.value);
+
+            if (playVal + foodVal + photoVal !== 100) {
+                isValid = false;
+                errorMessage = '旅遊類型偏好的總和必須等於 100%';
+            }
+
+            // 檢查預算
+            const totalBudget = parseInt(totalBudgetInput.value);
+            if (isNaN(totalBudget) || totalBudget <= 0) {
+                // Check if advanced budget is used instead
+                const hotelBudget = parseInt(document.getElementById('hotelBudget').value) || 0;
+                const otherBudget = parseInt(document.getElementById('otherBudget').value) || 0;
+                if (!advancedBudgetCheckbox.checked || (hotelBudget <= 0 && otherBudget <= 0)) {
+                     isValid = false;
+                     errorMessage = '請輸入有效的總預算或進階預算金額';
+                }
+            }
+
+
+            if (!isValid) {
+                alert(errorMessage);
+                return;
+            }
+
+            // 顯示結果區塊
+            resultSection.classList.remove('hidden');
+
+            // 滾動到結果區域
+            resultSection.scrollIntoView({ behavior: 'smooth' });
+
+            // 初始化圖表
+            initCharts();
+        });
+
+        // 行程標籤切換
+        const itineraryTabs = document.querySelectorAll('.itinerary-tab');
+        const itineraryContents = document.querySelectorAll('.itinerary-content');
+
+        itineraryTabs.forEach(tab => {
+            tab.addEventListener('click', function() {
+                const tabId = this.getAttribute('data-tab');
+
+                // 移除所有標籤的活動狀態
+                itineraryTabs.forEach(t => {
+                    t.classList.remove('text-blue-600', 'border-b-2', 'border-blue-600');
+                    t.classList.add('text-gray-500');
+                });
+
+                // 添加當前標籤的活動狀態
+                this.classList.add('text-blue-600', 'border-b-2', 'border-blue-600');
+                this.classList.remove('text-gray-500');
+
+                // 隱藏所有內容
+                itineraryContents.forEach(content => {
+                    content.classList.add('hidden');
+                });
+
+                // 顯示當前內容
+                document.getElementById(tabId).classList.remove('hidden');
+            });
+        });
+
+        // Chart instances to update later if needed
+        let typeChartInstance = null;
+        let budgetChartInstance = null;
+
+        // Initialize charts
+        function initCharts() {
+             // Destroy existing charts if they exist
+            if (typeChartInstance) {
+                typeChartInstance.destroy();
+            }
+            if (budgetChartInstance) {
+                budgetChartInstance.destroy();
+            }
+
+            // 行程類型圖表
+            const typeCtx = document.getElementById('typeChart').getContext('2d');
+            typeChartInstance = new Chart(typeCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['遊玩行程', '美食行程', '拍照行程'],
+                    datasets: [{
+                        data: [parseInt(playRatioSlider.value), parseInt(foodRatioSlider.value), parseInt(photoRatioSlider.value)],
+                        backgroundColor: ['#3b82f6', '#10b981', '#f59e0b'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        },
+                        title: {
+                            display: true,
+                            text: '行程類型分布'
+                        }
+                    }
+                }
+            });
+
+            // 預算分配圖表 (Using placeholder data)
+            const budgetCtx = document.getElementById('budgetChart').getContext('2d');
+            budgetChartInstance = new Chart(budgetCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['住宿', '交通', '餐飲', '門票', '其他'],
+                    datasets: [{
+                        label: '預算分配 (NT$)',
+                        data: [500, 300, 400, 150, 50], // Placeholder data
+                        backgroundColor: [
+                            'rgba(59, 130, 246, 0.7)',
+                            'rgba(16, 185, 129, 0.7)',
+                            'rgba(245, 158, 11, 0.7)',
+                            'rgba(139, 92, 246, 0.7)',
+                            'rgba(236, 72, 153, 0.7)'
+                        ],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        title: {
+                            display: true,
+                            text: '每人每日預算分配 (範例)' // Added (範例) as data is static
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+    });
+</script>
+</body>
+</html>
