@@ -6,92 +6,142 @@
   <title>新竹旅遊規劃</title>
   <style>
     body {
-      font-family: sans-serif;
-      background-color: #d5e0fa;
+      font-family: "Segoe UI", sans-serif;
+      background-color: #eef3fd;
+      margin: 0;
+      padding: 0;
     }
 
     .home_page_top_title {
-      padding: 10px;
-      margin: 10px;
-      border-top-left-radius: 10px;
-      border-top-right-radius: 10px;
-      background-color: #6f9dff;
+      padding: 20px;
+      background: linear-gradient(to right, #6f9dff, #a6c8ff);
       color: #ffffff;
-      font-size: 40px;
-      font-weight: bold;
+      font-size: 42px;
+      font-weight: 800;
+      text-align: center;
+      letter-spacing: 2px;
     }
 
     .home_page_main {
-      padding: 10px;
-      margin: 10px;
-      border-radius: 10px;
+      max-width: 900px;
+      margin: 30px auto;
+      padding: 30px;
+      border-radius: 16px;
       background-color: #ffffff;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
     }
 
     .home_page_main_title {
-      font-size: 30px;
+      font-size: 32px;
       font-weight: bold;
-      color: #a64def;
+      color: #6d35c4;
       text-align: center;
+      margin-bottom: 30px;
     }
 
     .home_page_main_box {
-      display: flex;
-      flex-direction: column;
-      margin: 10px;
-      padding: 10px;
-      background-color: #f1e1ff;
-      border-radius: 10px;
+      margin-bottom: 30px;
+      padding: 20px;
+      background-color: #f4ebff;
+      border-radius: 12px;
     }
 
     .home_page_main_box_title {
       font-size: 24px;
       font-weight: bold;
       color: #a64def;
-      margin-bottom: 10px;
+      margin-bottom: 15px;
+      border-bottom: 2px solid #d2b4ff;
+      padding-bottom: 5px;
     }
 
-    .home_page_main_box1_p {
-      font-size: 20px;
-      font-weight: bold;
-      margin-top: 10px;
-      color: #333;
-    }
-
-    .area_form {
-      padding-left: 400px;
+    .area_form,
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px 20px;
+      padding-left: 20px;
     }
 
     .checkbox-label {
       display: inline-block;
       margin: 4px;
-      padding: 6px 10px;
-      border: 1px solid #999;
+      padding: 6px 12px;
+      border: 1px solid #ccc;
       border-radius: 6px;
       background-color: #fff;
       cursor: pointer;
+      transition: background-color 0.2s;
     }
 
-    .checkbox-label input[type="checkbox"] {
+    .checkbox-label:hover {
+      background-color: #e8e8e8;
+    }
+
+    input[type="number"],
+    input[type="date"] {
+      padding: 6px 10px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 16px;
+      width: 100%;
+    }
+
+    label {
+      font-size: 16px;
+      font-weight: 500;
+    }
+
+    input[type="radio"] {
       margin-right: 6px;
     }
 
     .create {
-      width: 150px;
+      width: 180px;
       height: 50px;
-      justify-content: center;
-      background-color: #ff8636;
+      background: linear-gradient(to right, #ff944c, #ff6d00);
       color: white;
       font-size: 20px;
-      border-radius: 5px;
+      font-weight: bold;
+      border-radius: 8px;
       cursor: pointer;
-      border-width: 0px;
+      border: none;
+      transition: background 0.3s;
+    }
+
+    .create:hover:enabled {
+      background: linear-gradient(to right, #ff6d00, #ff944c);
+    }
+
+    #totalWarning {
+      color: red;
+      font-weight: bold;
+      margin-top: 10px;
+      grid-column: span 2;
+    }
+
+    @media (max-width: 600px) {
+      .form-grid,
+      .area_form {
+        grid-template-columns: 1fr;
+        padding-left: 0;
+      }
+
+      .home_page_main {
+        margin: 10px;
+        padding: 20px;
+      }
+
+      .create {
+        width: 100%;
+      }
     }
   </style>
 </head>
 
 <body class="home_page">
   <h1 class="home_page_top_title">新竹旅遊規劃</h1>
+
   <div class="home_page_main">
     <h1 class="home_page_main_title">建立專屬旅遊行程</h1>
 
@@ -104,49 +154,59 @@
     <!-- 偏好 -->
     <div class="home_page_main_box">
       <h1 class="home_page_main_box_title">旅遊偏好</h1>
-      <div class="area_form">
+      <div class="form-grid">
         <label>場地偏好：</label>
-        <label><input type="radio" name="indoorPref" value="indoor"> 室內</label>
-        <label><input type="radio" name="indoorPref" value="outdoor"> 室外</label>
+        <div>
+          <label><input type="radio" name="indoorPref" value="indoor"> 室內</label>
+          <label><input type="radio" name="indoorPref" value="outdoor"> 室外</label>
+        </div>
 
         <label for="totalSpots">總景點數量：</label>
-<input type="number" id="totalSpots" min="1" value="1" />
+        <input type="number" id="totalSpots" min="1" value="1" />
 
-<label for="photoCount">拍照景點數：</label>
-<input type="number" id="photoCount" min="0" value="0" />
-<label for="attractionCount">旅遊景點數：</label>
-<input type="number" id="attractionCount" min="0" value="0" />
-<label for="restaurantCount">餐廳數：</label>
-<input type="number" id="restaurantCount" min="0" value="0" />
+        <label for="photoCount">拍照景點數：</label>
+        <input type="number" id="photoCount" min="0" value="0" />
 
-        
+        <label for="attractionCount">旅遊景點數：</label>
+        <input type="number" id="attractionCount" min="0" value="0" />
 
-        <div id="totalWarning" style="color:red; display:none">總和必須為 100%</div>
+        <label for="restaurantCount">餐廳數：</label>
+        <input type="number" id="restaurantCount" min="0" value="0" />
+
+        <div id="totalWarning" style="display:none">總和必須小於或等於總景點數量</div>
       </div>
     </div>
 
     <!-- 日期 -->
     <div class="home_page_main_box">
       <h1 class="home_page_main_box_title">旅遊日期</h1>
-      <div class="area_form">
-        <label>開始日期：<input type="date" id="startDate"></label><br>
-        <label>結束日期：<input type="date" id="endDate"></label>
+      <div class="form-grid">
+        <label>開始日期：</label>
+        <input type="date" id="startDate">
+
+        <label>結束日期：</label>
+        <input type="date" id="endDate">
       </div>
     </div>
 
     <!-- 預算與人數 -->
     <div class="home_page_main_box">
       <h1 class="home_page_main_box_title">旅遊預算與人數</h1>
-      <div class="area_form">
-        <label>旅遊人數：<input type="number" id="peopleCount" min="1" value="1"></label><br>
-        <label>預算總金額：<input type="number" id="budget" min="0" value="0"></label>
+      <div class="form-grid">
+        <label>旅遊人數：</label>
+        <input type="number" id="peopleCount" min="1" value="1">
+
+        <label>預算總金額：</label>
+        <input type="number" id="budget" min="0" value="0">
       </div>
     </div>
 
+    <!-- 建立按鈕 -->
     <div style="text-align: center; margin-top: 20px;">
       <button class="create" id="viewSpotsBtn" disabled>建立行程</button>
     </div>
   </div>
+
 
  <script>
   fetch('/taiwan_districts.json')

@@ -183,14 +183,7 @@
 			<h1 class="home_page_main_box_title">旅遊偏好</h1>
 			<label class="home_page_main_box2_text" style="margin: 20px;" for="mySlider">室外</label>
 			<input type="range" id="mySlider" name="brightness" min="0" max="100" value="0" step="50">
-			<script>
-				const slider = document.getElementById("mySlider");
-				const value = document.getElementById("sliderValue");
-
-				slider.addEventListener("input", () => {
-					value.textContent = slider.value;
-				});
-			</script>
+			
 			<label class="home_page_main_box2_text" style="margin: 20px;" for="mySlider">室內</label>
 			<form style="margin-left: 50px;display: column" action="/like-choose" method="POST">
 				<div class="area_form">
@@ -212,17 +205,7 @@
 				結束日期：
 				<input type="date" id="endDate" name="endDate">
 			</label>
-			<script>
-				const startInput = document.getElementById('startDate');
-				const endInput = document.getElementById('endDate');
-				startInput.addEventListener('change', () => {     // 日期改變 → 限制結束日期
-					endInput.min = startInput.value;
-				});
-
-				endInput.addEventListener('change', () => {     // 日期改變 → 限制開始日期
-					startInput.max = endInput.value;
-				});
-			</script>
+			
 		</div>
 		<div class="home_page_main_box">
 			<h1 class="home_page_main_box_title">旅遊設定</h1>
@@ -232,15 +215,7 @@
 				<input class="people_input" id="amount" value="0" step="100" min="0" readonly>
 				<button class="people_input_button" onclick="changeAmount(1)">＋</button>
 			</div>
-			<script>
-				function changeAmount(change) {
-					const input = document.getElementById('amount');
-					let current = parseInt(input.value) || 0;
-					current += change;
-					if (current < 0) current = 0;       //錢錢不<0
-					input.value = current;
-				}
-			</script>
+			
 			<div class="money_input" style="margin: left 50px;">
 				<h1 class="home_page_main_box1_p" style="margin-right: 50px; margin-left: 100px">總金額</h1>
 				<input type="number" placeholder="輸入金額" style="flex: 1; padding: 0px; height:30px" />
