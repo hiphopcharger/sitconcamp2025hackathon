@@ -36,22 +36,31 @@
             background-color: #ffffff;
         }
 
-        .second_page_main_title {
+        .second_page_main_title_r {
             width: 100%;
-			font-size: 30px;
-			font-weight: bold;
-			color: #a64def;
-			text-align: center;
-            
-		}
+            font-size: 30px;
+            font-weight: bold;
+            color: #a64def;
+            text-align: center;
+
+        }
+
+        .second_page_main_title_l {
+            width: 100%;
+            font-size: 30px;
+            font-weight: bold;
+            color: #000000;
+            text-align: center;
+
+        }
 
         .second_page_main_box {
-            width: 47%;
-			margin: 10px;
-			padding: 10px;
-			background-color: #f1e1ff;
-			border-radius: 10px;
-		}
+
+            margin: 10px;
+            padding: 10px;
+            background-color: #f1e1ff;
+            border-radius: 10px;
+        }
 
         .center {
             display: flex;
@@ -60,20 +69,162 @@
             width: 100%;
         }
 
+        .viewpoint_card {
+            display: flex;
+            padding-left: 10px;
+            margin-top: 0px
+        }
+
+        .viewpoint_card_text {
+            font-size: 24px;
+            font-weight: normal;
+            color: #000000;
+            margin: 0px;
+        }
+
+        .viewpoint_card_date {
+            font-size: 24px;
+            font-weight: bold;
+            color: #000000;
+            margin: 0px;
+            display: grid;
+            place-items: center;
+        }
+
+        .viewpoint_card_detail {
+            display: flex;
+            gap: 250px
+        }
+
+        .button_del {
+            margin-left: 100px;
+            border-radius: 5px;
+            background-color: #f8cd9c;
+            color: black;
+        }
+
+        .viewpoint_suggest {
+            width: 94%;
+            display: "flex";
+            gap: 10px;
+            padding: 10px;
+            background-color: #ffffff;
+            border-radius: 5px;
+        }
+
+        .viewpoint_suggest_text {
+            font-size: 15px;
+            margin: 0px;
+            color: #000000;
+            text-align: left;
+        }
+
         h4 {
             font-size: 20px;
             color: rgb(61, 62, 62);
         }
     </style>
 </head>
+
 <body class="second_page">
     <h1 class="second_page_top_title">新竹旅遊行程</h1>
     <div class="second_page_main">
-        <div class="second_page_main_box">
-            <h1 class="second_page_main_title">旅遊行程</h1>
-        </div class=center>
-        <div class="second_page_main_box">
-            <h1 class="second_page_main_title">景點推薦</h1>
-        </div class=center>
+        <div class="second_page_main_box" style="width: 70%;">
+            <h1 class="second_page_main_title_l">——————————————— DAY 1 ———————————————</h1>
+            <div class="viewpoint_card">
+                <div style="margin-left: 40px;">
+                    <div class="viewpoint_card_detail">
+                        <div>
+                            <h3 class="viewpoint_card_text">新竹市立動物園</h3>
+                            <h3 class="viewpoint_card_text">新竹市東區光復路二段100號</h3>
+                            <h3 class="viewpoint_card_text">營業時間 : 二 ~ 日 09:00 - 17:00</h3>
+                            <h3 class="viewpoint_card_text">平均價格 : 600</h3>
+                            <h3 class="viewpoint_card_text">環境 : 室外
+                                <button class="button_del"  name="del">移除</button>
+                            </h3>
+                        </div>
+                        <div>
+                            <h3 class="viewpoint_card_text">新竹市立動物園</h3>
+                            <h3 class="viewpoint_card_text">新竹市東區光復路二段100號</h3>
+                            <h3 class="viewpoint_card_text">營業時間 : 二 ~ 日 09:00 - 17:00</h3>
+                            <h3 class="viewpoint_card_text">平均價格 : 600</h3>
+                            <h3 class="viewpoint_card_text">環境 : 室外
+                                <button class="button_del" name="del">移除</button>
+                            </h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <h1 class="second_page_main_title_l">——————————————— DAY 2 ———————————————</h1>
+            <div class="viewpoint_card">
+                <div style="margin-left: 40px;">
+                    <div class="viewpoint_card_detail">
+                        <div>
+                            <h3 class="viewpoint_card_text">新竹市立動物園</h3>
+                            <h3 class="viewpoint_card_text">新竹市東區光復路二段100號</h3>
+                            <h3 class="viewpoint_card_text">營業時間 : 二 ~ 日 09:00 - 17:00</h3>
+                            <h3 class="viewpoint_card_text">平均價格 : 600</h3>
+                            <h3 class="viewpoint_card_text">環境 : 室外
+                                <button class="button_del" name="del">移除</button>
+                            </h3>
+                        </div>
+                        <div>
+                            <h3 class="viewpoint_card_text">新竹市立動物園</h3>
+                            <h3 class="viewpoint_card_text">新竹市東區光復路二段100號</h3>
+                            <h3 class="viewpoint_card_text">營業時間 : 二 ~ 日 09:00 - 17:00</h3>
+                            <h3 class="viewpoint_card_text">平均價格 : 600</h3>
+                            <h3 class="viewpoint_card_text">環境 : 室外
+                                <button class="button_del" name="del">移除</button>
+                            </h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <h1 class="second_page_main_title_l">——————————————— DAY 3 ———————————————</h1>
+            <div class="viewpoint_card">
+                <div style="margin-left: 40px;">
+                    <div class="viewpoint_card_detail">
+                        <div>
+                            <h3 class="viewpoint_card_text">新竹市立動物園</h3>
+                            <h3 class="viewpoint_card_text">新竹市東區光復路二段100號</h3>
+                            <h3 class="viewpoint_card_text">營業時間 : 二 ~ 日 09:00 - 17:00</h3>
+                            <h3 class="viewpoint_card_text">平均價格 : 600</h3>
+                            <h3 class="viewpoint_card_text">環境 : 室外
+                                <button class="button_del" name="del">移除</button>
+                            </h3>
+                        </div>
+                        <div>
+                            <h3 class="viewpoint_card_text">新竹市立動物園</h3>
+                            <h3 class="viewpoint_card_text">新竹市東區光復路二段100號</h3>
+                            <h3 class="viewpoint_card_text">營業時間 : 二 ~ 日 09:00 - 17:00</h3>
+                            <h3 class="viewpoint_card_text">平均價格 : 600</h3>
+                            <h3 class="viewpoint_card_text">環境 : 室外
+                                <button class="button_del" name="del">移除</button>
+                            </h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="second_page_main_box" style="width: 24%;">
+            <h1 class="second_page_main_title_r">景點推薦</h1>
+            <div class="viewpoint_suggest">
+                <div>
+                    <p class="viewpoint_suggest_text">新竹市立動物園</p>
+                    <p class="viewpoint_suggest_text">新竹市東區光復路二段100號</p>
+                    <p class="viewpoint_suggest_text">營業時間 : 二 ~ 日 09:00 - 17:00</p>
+                    <p class="viewpoint_suggest_text">平均價格 : 600</p>
+                    <p class="viewpoint_suggest_text">環境 : 室外</p>
+                </div>
+                <div>
+                    <p class="viewpoint_suggest_text">新竹市立動物園</p>
+                    <p class="viewpoint_suggest_text">新竹市東區光復路二段100號</p>
+                    <p class="viewpoint_suggest_text">營業時間 : 二 ~ 日 09:00 - 17:00</p>
+                    <p class="viewpoint_suggest_text">平均價格 : 600</p>
+                    <p class="viewpoint_suggest_text">環境 : 室外</p>
+                </div>
+            </div>
+        </div>
     </div>
+
 </html>
