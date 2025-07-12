@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <title>新竹景點列表</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 2rem;
+      background-color: #f2f5ff;
+    }
+    h1 {
+      color: #4a61d1;
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    .spot {
+      background-color: white;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+    .spot h3 {
+      margin: 0 0 0.5rem 0;
+      color: #333;
+    }
+    .spot p {
+      margin: 0.3rem 0;
+    }
+    .day-group {
+      margin-bottom: 3rem;
+    }
+    .day-group h2 {
+      color: #3a3a7a;
+      margin-bottom: 1rem;
+      border-bottom: 2px solid #4a61d1;
+      padding-bottom: 0.3rem;
+    }
+  </style>
+</head>
+<body>
+  <h1>新竹景點列表</h1>
+  <div id="spotContainer">資料載入中...</div>
+
+<script>
+  const params = JSON.parse(localStorage.getItem('tripParams') || '{}');
+  console.log("🚀 tripParams from localStorage:", params);
+
+  const city = params.city || '';
+  const townships = params.areas || [];
+  const indoorPref = params.indoor || 'any';
+
+  const photoCount = parseInt(params.photoCount) || 0;
+  const attractionCount = parseInt(params.attractionCount) || 0;
+  const restaurantCount = parseInt(params.restaurantCount) || 0;
+
+  const totalSpots = parseInt(params.totalSpots) || (photoCount + attractionCount + restaurantCount);
+  const startDateStr = params.startDate || '';
+  const endDateStr = params.endDate || '';
+  const peopleCount = parseInt(params.peopleCount || params.people) || 1;
+  const totalBudget = parseInt(params.budget) || 0;
+  const maxPerPerson = totalBudget / peopleCount;
+
+  console.log("👥 People:", peopleCount, "💰 Budget:", totalBudget, "➡ 每人預算:", maxPerPerson);
+
+  fetch('/hsinchu_spots.json')
+    .then(res => res.json())
+    .then(data => {
+      const container = document.getElementById('spotContainer');
+      container.innerHTML = '';
+
+      if (!startDateStr || !endDateStr) {
+        container.textContent = '請設定開始與結束日期';
+        return;
+      }
+
+      const startDate = new Date(startDateStr);
+      const endDate = new Date(endDateStr);
+      if (endDate < startDate) {
+        container.textContent = '結束日期不能早於開始日期';
+        return;
+      }
+
+      const days = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24)) + 1;
+      console.log("📅 總旅遊天數:", days);
+
+      if (totalSpots < days) {
+        container.textContent = `景點總數 (${totalSpots}) 必須大於等於旅遊天數 (${days})`;
+        return;
+      }
+
+      let filtered = data.filter(spot => {
+        if (city && spot.city !== city) return false;
+        if (townships.length > 0 && !townships.includes(spot.township)) return false;
+        if (indoorPref === 'indoor' && !spot.indoor) return false;
+        if (indoorPref === 'outdoor' && spot.indoor) return false;
+        return true;
+      });
+      console.log("🗂 有效景點總數:", filtered.length);
+
+      const photos = filtered.filter(s => s.type === '拍照');
+      const attractions = filtered.filter(s => s.type === '景點');
+      const restaurants = filtered.filter(s => s.type === '餐廳');
+
+      console.log("📷 拍照景點:", photos.length);
+      console.log("🎡 一般景點:", attractions.length);
+      console.log("🍽️ 餐廳景點:", restaurants.length);
+
+      let valid = false;
+      let finalList = [];
+      let attempts = 0;
+
+      while (!valid && attempts < 20) {
+        const tempPhotos = shuffleArray(photos).slice(0, photoCount);
+        const tempAttractions = shuffleArray(attractions).slice(0, attractionCount);
+        const tempRestaurants = shuffleArray(restaurants).slice(0, restaurantCount);
+        const baseList = [...tempPhotos, ...tempAttractions, ...tempRestaurants];
+
+        const extraCount = totalSpots - baseList.length;
+        const remainingSpots = filtered.filter(s => !baseList.includes(s));
+        const extraSpots = shuffleArray(remainingSpots).slice(0, extraCount > 0 ? extraCount : 0);
+        const tempList = [...baseList, ...extraSpots];
+
+        const totalCost = tempList.reduce((sum, s) => {
+          const priceNumber = typeof s.price === 'number'
+            ? s.price
+            : parseInt(String(s.price).match(/\d+/)?.[0]) || 0;
+
+          if (typeof s.price !== 'number' && !String(s.price).match(/\d+/)) {
+            console.warn(`⚠️ 景點 ${s.name} 的價格格式無法解析為數字:`, s.price);
+          }
+          return sum + priceNumber;
+        }, 0);
+
+        console.log(`💸 嘗試組合總價格: ${totalCost} 元（限額 ${maxPerPerson} 元）`);
+
+        if (totalCost <= maxPerPerson) {
+          valid = true;
+          finalList = tempList;
+          break;
+        }
+        attempts++;
+      }
+
+      if (!valid) {
+        container.textContent = '❌ 無符合預算的景點組合';
+        return;
+      }
+
+      const dailySpots = Array.from({ length: days }, () => []);
+      finalList = shuffleArray(finalList);
+      finalList.forEach((spot, idx) => {
+        dailySpots[idx % days].push(spot);
+      });
+
+      dailySpots.forEach((spots, dayIndex) => {
+        const date = new Date(startDate);
+        date.setDate(startDate.getDate() + dayIndex);
+
+        const dayDiv = document.createElement('div');
+        dayDiv.className = 'day-group';
+        dayDiv.innerHTML = `<h2>第 ${dayIndex + 1} 天 （${date.toLocaleDateString()}）</h2>`;
+
+        spots.forEach(spot => {
+          const div = document.createElement('div');
+          div.className = 'spot';
+          div.innerHTML = `
+            <h3>${spot.name}</h3>
+            <p><strong>描述：</strong>${spot.description}</p>
+            <p><strong>縣市：</strong>${spot.city}</p>
+            <p><strong>鄉鎮：</strong>${spot.township}</p>
+            <p><strong>類型：</strong>${spot.type}</p>
+            <p><strong>場地：</strong>${spot.indoor ? '室內' : '室外'}</p>
+            <p><strong>價格：</strong>${spot.price} 元</p>
+            <p><strong>歇業日：</strong>${spot.close_days.length > 0 ? spot.close_days.join(', ') : '無'}</p>
+          `;
+          dayDiv.appendChild(div);
+        });
+
+        container.appendChild(dayDiv);
+      });
+
+    })
+    .catch(e => {
+      console.error(e);
+      document.getElementById('spotContainer').textContent = '資料載入失敗';
+    });
+
+  function shuffleArray(array) {
+    const arr = array.slice();
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+  }
+</script>
+
+
+
+</body>
+</html>

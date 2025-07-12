@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+  <meta charset="utf-8" />
+  <title>新竹旅遊規劃</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background-color: #d5e0fa;
+    }
+
+    .home_page_top_title {
+      padding: 10px;
+      margin: 10px;
+      border-top-left-radius: 10px;
+      border-top-right-radius: 10px;
+      background-color: #6f9dff;
+      color: #ffffff;
+      font-size: 40px;
+      font-weight: bold;
+    }
+
+    .home_page_main {
+      padding: 10px;
+      margin: 10px;
+      border-radius: 10px;
+      background-color: #ffffff;
+    }
+
+    .home_page_main_title {
+      font-size: 30px;
+      font-weight: bold;
+      color: #a64def;
+      text-align: center;
+    }
+
+    .home_page_main_box {
+      display: flex;
+      flex-direction: column;
+      margin: 10px;
+      padding: 10px;
+      background-color: #f1e1ff;
+      border-radius: 10px;
+    }
+
+    .home_page_main_box_title {
+      font-size: 24px;
+      font-weight: bold;
+      color: #a64def;
+      margin-bottom: 10px;
+    }
+
+    .home_page_main_box1_p {
+      font-size: 20px;
+      font-weight: bold;
+      margin-top: 10px;
+      color: #333;
+    }
+
+    .area_form {
+      padding-left: 400px;
+    }
+
+    .checkbox-label {
+      display: inline-block;
+      margin: 4px;
+      padding: 6px 10px;
+      border: 1px solid #999;
+      border-radius: 6px;
+      background-color: #fff;
+      cursor: pointer;
+    }
+
+    .checkbox-label input[type="checkbox"] {
+      margin-right: 6px;
+    }
+
+    .create {
+      width: 150px;
+      height: 50px;
+      justify-content: center;
+      background-color: #ff8636;
+      color: white;
+      font-size: 20px;
+      border-radius: 5px;
+      cursor: pointer;
+      border-width: 0px;
+    }
+  </style>
+</head>
+
+<body class="home_page">
+  <h1 class="home_page_top_title">新竹旅遊規劃</h1>
+  <div class="home_page_main">
+    <h1 class="home_page_main_title">建立專屬旅遊行程</h1>
+
+    <!-- 旅遊地點 -->
+    <div class="home_page_main_box">
+      <h1 class="home_page_main_box_title">旅遊地點</h1>
+      <div id="areaCheckboxContainer" class="area_form"></div>
+    </div>
+
+    <!-- 偏好 -->
+    <div class="home_page_main_box">
+      <h1 class="home_page_main_box_title">旅遊偏好</h1>
+      <div class="area_form">
+        <label>場地偏好：</label>
+        <label><input type="radio" name="indoorPref" value="indoor"> 室內</label>
+        <label><input type="radio" name="indoorPref" value="outdoor"> 室外</label>
+
+        <label for="totalSpots">總景點數量：</label>
+<input type="number" id="totalSpots" min="1" value="1" />
+
+<label for="photoCount">拍照景點數：</label>
+<input type="number" id="photoCount" min="0" value="0" />
+<label for="attractionCount">旅遊景點數：</label>
+<input type="number" id="attractionCount" min="0" value="0" />
+<label for="restaurantCount">餐廳數：</label>
+<input type="number" id="restaurantCount" min="0" value="0" />
+
+        
+
+        <div id="totalWarning" style="color:red; display:none">總和必須為 100%</div>
+      </div>
+    </div>
+
+    <!-- 日期 -->
+    <div class="home_page_main_box">
+      <h1 class="home_page_main_box_title">旅遊日期</h1>
+      <div class="area_form">
+        <label>開始日期：<input type="date" id="startDate"></label><br>
+        <label>結束日期：<input type="date" id="endDate"></label>
+      </div>
+    </div>
+
+    <!-- 預算與人數 -->
+    <div class="home_page_main_box">
+      <h1 class="home_page_main_box_title">旅遊預算與人數</h1>
+      <div class="area_form">
+        <label>旅遊人數：<input type="number" id="peopleCount" min="1" value="1"></label><br>
+        <label>預算總金額：<input type="number" id="budget" min="0" value="0"></label>
+      </div>
+    </div>
+
+    <div style="text-align: center; margin-top: 20px;">
+      <button class="create" id="viewSpotsBtn" disabled>建立行程</button>
+    </div>
+  </div>
+
+ <script>
+  fetch('/taiwan_districts.json')
+    .then(res => res.json())
+    .then(data => {
+      const container = document.getElementById('areaCheckboxContainer');
+      const viewBtn = document.getElementById('viewSpotsBtn');
+      const allowedCities = ['新竹市', '新竹縣'];
+
+      data.forEach(city => {
+        if (!allowedCities.includes(city.name)) return;
+
+        const areaDiv = document.createElement('div');
+        const cityTitle = document.createElement('h1');
+        cityTitle.className = 'home_page_main_box1_p';
+        cityTitle.textContent = city.name;
+        areaDiv.appendChild(cityTitle);
+
+        city.districts.forEach(district => {
+          const label = document.createElement('label');
+          label.className = 'checkbox-label';
+          label.style.border = '1px solid #ccc';
+          label.style.padding = '4px 8px';
+          label.style.marginRight = '8px';
+          label.style.display = 'inline-block';
+          label.style.borderRadius = '4px';
+
+          const checkbox = document.createElement('input');
+          checkbox.type = 'checkbox';
+          checkbox.name = 'area';
+          checkbox.value = district.name;
+
+          label.appendChild(checkbox);
+          label.append(` ${district.name}`);
+          areaDiv.appendChild(label);
+        });
+
+        container.appendChild(areaDiv);
+      });
+
+      container.addEventListener('change', validatePreferenceSum);
+
+      viewBtn.addEventListener('click', () => {
+        const areas = Array.from(document.querySelectorAll('input[name="area"]:checked')).map(cb => cb.value);
+        const totalSpots = parseInt(document.getElementById('totalSpots')?.value) || 0;
+        const photoCount = parseInt(document.getElementById('photoCount')?.value) || 0;
+        const attractionCount = parseInt(document.getElementById('attractionCount')?.value) || 0;
+        const restaurantCount = parseInt(document.getElementById('restaurantCount')?.value) || 0;
+
+        const indoor = document.querySelector('input[name="indoorPref"]:checked')?.value || 'any';
+        const startDate = document.getElementById("startDate").value;
+        const endDate = document.getElementById("endDate").value;
+        const peopleCount = parseInt(document.getElementById("peopleCount").value) || 1;
+        const budget = parseInt(document.getElementById("budget").value) || 0;
+
+        const params = {
+          areas,
+          totalSpots,
+          photoCount,
+          attractionCount,
+          restaurantCount,
+          indoor,
+          startDate,
+          endDate,
+          peopleCount,
+          budget
+        };
+
+        localStorage.setItem('tripParams', JSON.stringify(params));
+        window.location.href = '/spots.html';
+      });
+    })
+    .catch(err => {
+      console.error("載入 taiwan_districts.json 失敗:", err);
+    });
+
+  function validatePreferenceSum() {
+  const totalSpots = parseInt(document.getElementById('totalSpots')?.value) || 0;
+  const photoCount = parseInt(document.getElementById('photoCount')?.value) || 0;
+  const attractionCount = parseInt(document.getElementById('attractionCount')?.value) || 0;
+  const restaurantCount = parseInt(document.getElementById('restaurantCount')?.value) || 0;
+
+  const sumCounts = photoCount + attractionCount + restaurantCount;
+  const warning = document.getElementById('totalWarning');
+  const viewBtn = document.getElementById('viewSpotsBtn');
+  const hasAreaChecked = document.querySelectorAll('input[name="area"]:checked').length > 0;
+
+  if (totalSpots > 0 && sumCounts > 0 && totalSpots >= sumCounts && hasAreaChecked) {
+    warning.style.display = 'none';
+    viewBtn.disabled = false;
+  } else {
+    warning.style.display = 'block';
+    viewBtn.disabled = true;
+  }
+}
+
+
+  ['totalSpots', 'photoCount', 'attractionCount', 'restaurantCount'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener('input', validatePreferenceSum);
+  });
+
+  document.getElementById('areaCheckboxContainer').addEventListener('change', validatePreferenceSum);
+</script>
+
+
+
+</body>
+
+</html>
