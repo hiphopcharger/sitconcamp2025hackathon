@@ -1,12 +1,12 @@
 const express = require('express');
 const app = express();
-const port = 3000;
+const port = process.env.PORT || 3000;
 
 // 提供 public 資料夾裡的靜態網頁
 app.use(express.static('public'));
 
 app.listen(port, () => {
-  console.log(`Server is running at http://localhost:${port}`);
+  console.log(`Server is running on port ${port}`);
 });
 
 app.get('/api/taiwan-districts', (req, res) => {
